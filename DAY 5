@@ -1,0 +1,78 @@
+--EX1
+SELECT DISTINCT city
+FROM station
+WHERE id%2=0
+--ex2
+SELECT 
+    COUNT(city) - COUNT(DISTINCT city) AS  difference
+FROM station
+--EX3
+SELECT 
+CEIL(AVG(SALARY) - AVG(REPLACE(Salary, '0' , ''))) 
+FROM EMPLOYEES
+--EX4
+SELECT 
+   ROUND(
+    SUM(CAST(item_count AS decimal)*order_occurrences)
+    /SUM(order_occurrences)
+  ,1) AS mean
+FROM items_per_order;
+--ex5
+SELECT candidate_id
+FROM candidates
+WHERE skill IN ('Python', 'Tableau', 'PostgreSQL')
+GROUP BY candidate_id
+HAVING COUNT(skill) = 3
+ORDER BY candidate_id ASC
+--ex6
+SELECT user_id,
+  MAX(post_date::DATE) - MIN(post_date::DATE) AS days_between
+FROM posts
+WHERE date_part('year',post_date::date)=2021
+GROUP BY user_id
+HAVING COUNT(user_id)>1
+--ex7
+SELECT 
+  card_name,
+  MAX("issued_amount") - MIN("issued_amount") AS disparity
+FROM monthly_cards_issued
+GROUP BY(card_name)
+ORDER BY(MAX(issued_amount) - MIN(issued_amount)) DESC
+--ex8
+SELECT 
+  manufacturer,
+  COUNT(drug) AS drug_count,
+  ABS(SUM(total_sales - cogs)) AS total_loss
+FROM pharmacy_sales
+WHERE total_sales - cogs<0
+GROUP BY manufacturer
+ORDER BY SUM(total_sales - cogs) DESC
+--ex9
+SELECT
+    id,
+    movie,
+    description,
+    rating
+FROM Cinema
+WHERE
+    id % 2 = 1 AND
+    description != 'boring'
+ORDER BY rating DESC;
+--ex10
+select 
+    teacher_id,  
+    count(distinct subject_id) as cnt
+from teacher
+group by teacher_id;
+--ex11
+select 
+    user_id,
+    count(follower_id) as followers_count
+from followers
+group by user_id
+order by user_id 
+--ex12
+select class
+from courses
+group by class
+having count(student) >=5
