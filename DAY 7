@@ -1,0 +1,57 @@
+--ex1
+select
+    name
+from students
+where marks > '75'
+order by right(name,3), id asc; 
+--ex2
+select 
+    user_id,
+    concat(upper(left(name,1)), lower(right(name, length(name)-1))) as name
+from users 
+order by user_id
+--ex3
+SELECT 
+  manufacturer, 
+  concat('$', round(sum(total_sales)/1000000), 'million') as sale
+FROM pharmacy_sales 
+group by manufacturer
+order by sale desc, manufacturer asc 
+--ex4
+SELECT 
+  manufacturer, 
+  concat('$', round(sum(total_sales)/1000000), ' million') as sale_mil 
+FROM pharmacy_sales 
+group by manufacturer 
+order by 
+  sum(total_sales)/1000000 desc, 
+  manufacturer asc 
+--ex5
+SELECT 
+  EXTRACT(month from submit_date) AS mth,
+  product_id AS product,
+  ROUND(AVG(stars),2) as avg_stars
+FROM reviews
+GROUP BY mth, product_id
+ORDER BY mth, product_id
+--ex6
+SELECT 
+    tweet_id
+FROM tweets
+WHERE LENGTH(content) > 15
+--EX7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
