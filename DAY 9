@@ -1,0 +1,61 @@
+--EX1
+SELECT 
+  SUM(CASE 
+    WHEN device_type = 'laptop'THEN 1 ELSE 0 
+    END) AS laptop_reviews,
+  SUM(CASE
+    WHEN device_type IN ('phone', 'tablet') THEN 1 ELSE 0
+    END) AS mobile_views
+FROM viewership;
+--EX2
+SELECT
+    x,
+    y,
+    z,
+    CASE 
+        WHEN x+y>z AND x+z>y and y+z>x THEN 'Yes' ELSE 'No'
+    END AS triangle
+FROM Triangle
+--EX3
+SELECT 
+  ROUND(
+    (SUM(CASE 
+          WHEN call_category = 'n/a' OR call_category IS NULL THEN 1 
+          ELSE 0 
+         END)::NUMERIC / COUNT(*)::NUMERIC) * 100,
+    1
+  ) AS uncategorised_call_pct
+FROM callers;
+--EX4
+SELECT 
+    name
+FROM customer
+WHERE  referee_id <> '2' OR referee_id IS NULL
+--EX5
+select 
+    pclass,
+    sum(case
+        when survived='0' then 1 else 0 
+    end) as number_of_non_survivors,
+    sum(case
+        when survived='1' then 1 else 0
+    end) as number_of_survivors
+from titanic
+group by pclass;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
