@@ -56,7 +56,10 @@ select
     position('a' in 'Amitah')
 from worker;
 --ex10
-
+select 
+    substring(title from length(winery)+2 for 4) as year 
+from winemag_p2
+where country = 'Macedonia'
 
 
 
