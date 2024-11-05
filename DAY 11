@@ -1,0 +1,88 @@
+--EX1
+SELECT COUNTRY.Continent, FLOOR(AVG(CITY.Population))
+FROM CITY
+INNER JOIN COUNTRY ON CITY.CountryCode=COUNTRY.Code
+GROUP BY COUNTRY.Continent
+--EX2
+SELECT 
+  ROUND(COUNT(CASE WHEN signup_action='Confirmed' THEN signup_action END)::NUMERIC/
+  COUNT(user_id)::NUMERIC,2) AS confirm_rate
+FROM emails 
+INNER JOIN texts 
+ON emails.email_id=texts.email_id
+--EX3
+SELECT 
+  age_breakdown.age_bucket,
+  ROUND(100.0*SUM(CASE  
+    WHEN activity_type='send' THEN time_spent ELSE 0 END)/
+  SUM(CASE  
+    WHEN activity_type<>'chat' THEN time_spent ELSE 0 END),2) AS send_perc,
+  ROUND(100.0*SUM(CASE  
+    WHEN activity_type='open' THEN time_spent ELSE 0 END)/
+  SUM(CASE  
+    WHEN activity_type<>'chat' THEN time_spent ELSE 0 END),2) AS open_perc
+FROM activities 
+INNER JOIN age_breakdown
+ON activities.user_id=age_breakdown.user_id
+GROUP BY age_breakdown.age_bucket
+--EX4
+SELECT 
+  customer_id
+FROM customer_contracts AS c 
+INNER JOIN products AS p 
+ON c.product_id=p.product_id
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_category)='3'
+--EX5
+SELECT 
+    emp.employee_id,
+    emp.name,
+    COUNT(mng.reports_to) AS reports_count,
+    CEILING(AVG(mng.age)) AS average_age
+FROM Employees AS emp
+JOIN Employees AS mng
+WHERE emp.employee_id=mng.reports_to
+GROUP BY emp.employee_id, emp.name
+ORDER BY emp.employee_id
+--EX6
+SELECT
+    p.product_name,
+    SUM(o.unit) AS unit
+FROM Products AS p
+INNER JOIN Orders AS o 
+ON p.product_id = o.product_id
+WHERE 
+    YEAR(order_date) = 2020
+    AND MONTH(order_date) = 2
+GROUP BY p.product_name
+HAVING SUM(o.unit) >= 100
+--EX7
+SELECT 
+  p.page_id
+FROM pages AS p
+LEFT JOIN page_likes AS l
+ON p.page_id=l.page_id
+WHERE liked_date IS NULL
+ORDER BY page_id 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
