@@ -34,3 +34,16 @@ SELECT DISTINCT
 FROM CTE AS b
 LEFT JOIN Sales AS a ON a.product_id=b.product_id AND 
  a.year=b.first_year
+--EX8
+WITH CTE AS (
+    SELECT 
+        customer_id, 
+        COUNT(DISTINCT product_key) AS distinct_product_count
+    FROM Customer
+    GROUP BY customer_id
+)
+SELECT 
+    customer_id
+FROM CTE
+WHERE distinct_product_count = (SELECT COUNT(*) FROM Product);
+--EX9
