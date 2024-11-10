@@ -18,3 +18,19 @@ ON p.page_id=l.page_id
 WHERE liked_date IS NULL
 ORDER BY page_id 
 --EX5
+--EX7
+WITH CTE AS (
+SELECT 
+    product_id,
+    MIN(year) AS first_year
+FROM Sales
+GROUP BY product_id
+)
+SELECT DISTINCT
+    a.product_id,
+    b.first_year,
+    a.quantity,
+    a.price
+FROM CTE AS b
+LEFT JOIN Sales AS a ON a.product_id=b.product_id AND 
+ a.year=b.first_year
