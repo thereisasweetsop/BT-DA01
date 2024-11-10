@@ -1,0 +1,20 @@
+--EX3
+WITH CTE AS 
+(SELECT 
+  policy_holder_id,
+  COUNT(case_id) 
+FROM callers
+GROUP BY policy_holder_id
+HAVING COUNT(case_id) >= '3')
+SELECT 
+  COUNT(*) AS policy_holder_count
+FROM CTE
+--EX4
+SELECT 
+  p.page_id
+FROM pages AS p
+LEFT JOIN page_likes AS l
+ON p.page_id=l.page_id
+WHERE liked_date IS NULL
+ORDER BY page_id 
+--EX5
