@@ -1,3 +1,49 @@
+--EX1
+WITH twt_job_listings AS
+(SELECT 
+  company_id,
+  title,
+  description,
+  COUNT(*) AS count_company
+FROM job_listings
+GROUP BY company_id, title, description)
+SELECT 
+  COUNT(count_company) AS duplicate_companies
+FROM twt_job_listings
+GROUP BY count_company
+HAVING count_company = '2'
+--EX2
+WITH twt_appliance AS (SELECT 
+  category,
+  product,
+  SUM(spend) AS total_spend
+FROM product_spend
+WHERE category='appliance'
+AND DATE_PART('year',transaction_date) = '2022'
+GROUP BY category, product
+ORDER BY total_spend DESC 
+LIMIT 2),
+twt_electronics AS(SELECT 
+  category,
+  product,
+  SUM(spend) AS total_spend
+FROM product_spend
+WHERE category='electronics'
+AND DATE_PART('year',transaction_date) = '2022'
+GROUP BY category, product
+ORDER BY total_spend DESC 
+LIMIT 2)
+SELECT 
+  category,
+  product,
+  total_spend
+FROM twt_appliance
+UNION ALL 
+SELECT 
+  category,
+  product,
+  total_spend
+FROM twt_electronics
 --EX3
 WITH CTE AS 
 (SELECT 
@@ -18,6 +64,26 @@ ON p.page_id=l.page_id
 WHERE liked_date IS NULL
 ORDER BY page_id 
 --EX5
+WITH twt_6 AS (SELECT 
+  user_id,
+  EXTRACT(month FROM event_date) as month
+FROM user_actions
+WHERE EXTRACT(month FROM event_date)=6),
+twt_7 AS (SELECT 
+  user_id,
+  EXTRACT(month FROM event_date) as month
+FROM user_actions
+WHERE EXTRACT(month FROM event_date)=7)
+SELECT 
+  month,
+  COUNT( DISTINCT user_id) AS monthly_active_users
+FROM twt_7
+WHERE user_id IN (SELECT 
+  user_id
+FROM twt_6)
+GROUP BY month
+--EX6
+
 --EX7
 WITH CTE AS (
 SELECT 
