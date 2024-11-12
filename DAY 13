@@ -142,6 +142,37 @@ FROM twt_job_listings
 GROUP BY count_company
 HAVING count_company = '2'
 --EX11
+WITH twt_rating AS (
+SELECT 
+     r.movie_id,
+    AVG(r.rating) AS avg_rating,
+    m.title
+FROM MovieRating AS r
+INNER JOIN Movies AS m 
+ON r.movie_id=m.movie_id
+WHERE LEFT(created_at,7)='2020-02'
+GROUP BY movie_id
+ORDER BY avg_rating DESC,
+     m.title ASC
+LIMIT 1),
+twt_name AS 
+(SELECT 
+    u.name,
+    COUNT(m.user_id) 
+FROM MovieRating AS m
+LEFT JOIN Users AS u
+ON u.user_id=m.user_id
+GROUP BY m.user_id
+ORDER BY COUNT(m.user_id) DESC, u.name ASC 
+LIMIT 1)
+(SELECT 
+    name AS results
+FROM twt_name)
+UNION ALL
+(SELECT 
+    title
+FROM twt_rating)
+--EX12
 
 
 
