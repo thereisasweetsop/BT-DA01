@@ -83,7 +83,15 @@ WHERE user_id IN (SELECT
 FROM twt_6)
 GROUP BY month
 --EX6
-
+SELECT 
+    LEFT(trans_date, 7) AS month,
+    country,
+    COUNT(*) AS trans_count,
+    SUM(CASE WHEN state='approved' THEN 1 ELSE 0 END) AS approved_count,
+    SUM(amount) AS trans_total_amount,
+    SUM(CASE WHEN state='approved' THEN amount ELSE 0 END) AS approved_total_amount
+FROM Transactions
+GROUP BY month, country
 --EX7
 WITH CTE AS (
 SELECT 
@@ -113,3 +121,32 @@ SELECT
 FROM CTE
 WHERE distinct_product_count = (SELECT COUNT(*) FROM Product);
 --EX9
+SELECT 
+    employee_id 
+FROM Employees
+WHERE salary < 30000
+AND manager_id NOT IN (SELECT employee_id FROM Employees)
+ORDER BY employee_id
+--EX10
+WITH twt_job_listings AS
+(SELECT 
+  company_id,
+  title,
+  description,
+  COUNT(*) AS count_company
+FROM job_listings
+GROUP BY company_id, title, description)
+SELECT 
+  COUNT(count_company) AS duplicate_companies
+FROM twt_job_listings
+GROUP BY count_company
+HAVING count_company = '2'
+--EX11
+
+
+
+
+
+
+
+
