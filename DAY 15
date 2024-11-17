@@ -55,3 +55,24 @@ SELECT
   AND CURRENT ROW),2) AS rolling_avg_3d
 FROM tweets
 --EX6
+
+--EX7
+WITH CTE AS
+(
+SELECT
+  category,
+  product,
+  SUM(spend) AS total_spend,
+  RANK() OVER(PARTITION BY category ORDER BY SUM(spend) DESC) AS rnk
+FROM product_spend
+WHERE EXTRACT('year' FROM transaction_date) = '2022'
+GROUP BY category, product
+)
+SELECT 
+  category,
+  product,
+  total_spend
+FROM CTE 
+WHERE rnk IN (1,2)
+  
+  
