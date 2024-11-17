@@ -1,0 +1,57 @@
+--EX2
+WITH card_launch AS
+(SELECT 
+  card_name,
+  issued_amount,
+  MAKE_DATE(issue_year, issue_month, 1) AS issue_date,
+  MIN(MAKE_DATE(issue_year, issue_month, 1)) 
+  OVER (PARTITION BY card_name) AS launch_date
+FROM monthly_cards_issued
+)
+SELECT card_name, issued_amount
+FROM card_launch 
+WHERE issue_date=launch_date
+ORDER BY issued_amount DESC 
+--EX3
+WITH twt_date AS
+(
+SELECT 
+  user_id,
+  spend,
+  transaction_date,
+  RANK() OVER (PARTITION BY user_id ORDER BY transaction_date) AS rank
+FROM transactions
+)
+SELECT 
+  user_id,
+  spend,
+  transaction_date
+FROM twt_date
+WHERE rank='3'
+--EX4
+WITH CTE AS
+(
+SELECT 
+  transaction_date,
+  user_id,
+  COUNT(*) AS purchase_count,
+  MAX(transaction_date) OVER (PARTITION BY user_id ORDER BY transaction_date DESC) 
+  AS recent_date
+FROM user_transactions
+GROUP BY transaction_date, user_id
+)
+SELECT 
+  transaction_date,
+  user_id,
+  purchase_count
+FROM CTE 
+WHERE recent_date=transaction_date
+ORDER BY transaction_date 
+--EX5
+SELECT
+  user_id,
+  tweet_date,
+  ROUND(AVG(tweet_count) OVER (PARTITION BY user_id ORDER BY tweet_date ROWS BETWEEN 2 PRECEDING
+  AND CURRENT ROW),2) AS rolling_avg_3d
+FROM tweets
+--EX6
