@@ -1,3 +1,17 @@
+--EX1
+SELECT 
+  EXTRACT (YEAR FROM transaction_date) AS year, 
+  product_id,
+  spend AS curr_year_spend,
+  LAG(spend) OVER(PARTITION BY product_id
+  ORDER BY EXTRACT (YEAR FROM transaction_date)) AS prev_year_spend,
+  ROUND(100*(spend -
+  LAG(spend) OVER(PARTITION BY product_id
+  ORDER BY EXTRACT (YEAR FROM transaction_date)))/
+  LAG(spend) OVER(PARTITION BY product_id
+  ORDER BY EXTRACT (YEAR FROM transaction_date))
+  ,2) AS yoy_rate
+FROM user_transactions 
 --EX2
 WITH card_launch AS
 (SELECT 
@@ -55,7 +69,34 @@ SELECT
   AND CURRENT ROW),2) AS rolling_avg_3d
 FROM tweets
 --EX6
-
+WITH CTE1 AS
+(
+SELECT 
+  transaction_id,
+  merchant_id,
+  credit_card_id,
+  amount,
+  transaction_timestamp,
+  RANK() OVER(ORDER BY merchant_id, credit_card_id, amount) AS rnk,
+  LEAD(transaction_timestamp) OVER(ORDER BY merchant_id, credit_card_id, amount),
+  LEAD(transaction_timestamp) OVER(ORDER BY merchant_id, credit_card_id, amount)-
+  transaction_timestamp AS time_period,
+  EXTRACT (minute FROM LEAD(transaction_timestamp) OVER(ORDER BY merchant_id, credit_card_id, amount)-
+  transaction_timestamp) AS number_of_minutes
+FROM transactions
+),
+ CTE2 AS 
+(
+SELECT
+  COUNT(rnk) -1 AS count_number
+FROM CTE1 
+WHERE number_of_minutes <='10' 
+GROUP BY rnk 
+)
+SELECT
+  SUM (count_number) AS payment_count
+FROM CTE2
+  
 --EX7
 WITH CTE AS
 (
