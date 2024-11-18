@@ -115,5 +115,33 @@ SELECT
   total_spend
 FROM CTE 
 WHERE rnk IN (1,2)
-  
+--EX8
+WITH CTE AS 
+(
+SELECT 
+  ar.artist_name,
+  gsr.song_id,
+  gsr.rank
+FROM artists AS ar 
+JOIN songs AS so 
+ON ar.artist_id=so.artist_id 
+JOIN global_song_rank AS gsr 
+ON gsr.song_id=so.song_id 
+WHERE gsr.rank <=10
+ORDER BY rank 
+), CTE2 AS 
+(
+SELECT 
+  artist_name,
+  COUNT(song_id) AS count,
+  DENSE_RANK() OVER(ORDER BY COUNT(song_id) DESC) AS artist_rank
+FROM CTE 
+GROUP BY artist_name
+)
+SELECT 
+  artist_name,
+  artist_rank
+FROM CTE2 
+WHERE artist_rank<='5'
+ORDER BY artist_rank, artist_name
   
