@@ -1,10 +1,31 @@
 SELECT
   COUNT(DISTINCT user_id) AS total_user,
-  COUNT(DISTINCT order_id) AS total_order,
+  COUNT(order_id) AS total_order,
   CAST(EXTRACT(YEAR FROM created_at) AS STRING) || '-' || LPAD(CAST(EXTRACT(MONTH FROM created_at) AS STRING), 2, '0') AS month_year
 FROM
-  `bigquery-public-data.thelook_ecommerce.orders`
+  bigquery-public-data.thelook_ecommerce.order_items
 WHERE created_at BETWEEN '2019-01-01' AND '2022-04-30'
 GROUP BY 3
 ORDER BY month_year
+INSIGHT:
++ Nhìn chung số lượng khách hàng và số lượng đơn hàng có xu hướng tăng theo thời gian
++ Từ tháng 1 đến tháng 11 năm 2019, số lượng khách hàng và đơn hàng gia tăng khá đồng đều và bị 
+chững lại tại tháng 12 năm 2019
++ Số lượng khách hàng và đơn hàng tăng mạnh vào tháng 1 năm 2020, trong 6 tháng đầu năm, 
+số liệu biến động, trong 6 tháng cuối năm, số liệu tăng đều. Quy luật lặp lại với năm 2021
++ Tháng 1 năm 2022, số lượng khách hàng và đơn hàng tăng mạnh nhưng giảm mạnh trong tháng 2, 
+phục hồi vào tháng 3 và giữ vững ổn định sang tháng 4
+---
+SELECT
+  COUNT(DISTINCT user_id) AS distinct_users,
+  ROUND(SUM(sale_price)/COUNT(order_id),2) AS average_order_value,
+  CAST(EXTRACT(YEAR FROM created_at) AS STRING) || '-' || LPAD(CAST(EXTRACT(MONTH FROM created_at) AS STRING), 2, '0') AS month_year
+FROM
+  bigquery-public-data.thelook_ecommerce.order_items
+WHERE created_at BETWEEN '2019-01-01' AND '2022-04-30'
+GROUP BY 3
+ORDER BY month_year
+INSIGHT:
++ Số lượng khách hàng có xu hướng tăng theo thời gian
++ Số lượng đơn hàng trung bình trong giai đoạn thời gian quan sát khá đồng đều, có biến động nhỏ, đặc biệt cao hơn vào tháng 3,4,5,6/2019
 ---
