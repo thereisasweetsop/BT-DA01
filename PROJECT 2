@@ -1,0 +1,10 @@
+SELECT
+  COUNT(DISTINCT user_id) AS total_user,
+  COUNT(DISTINCT order_id) AS total_order,
+  CAST(EXTRACT(YEAR FROM created_at) AS STRING) || '-' || LPAD(CAST(EXTRACT(MONTH FROM created_at) AS STRING), 2, '0') AS month_year
+FROM
+  `bigquery-public-data.thelook_ecommerce.orders`
+WHERE created_at BETWEEN '2019-01-01' AND '2022-04-30'
+GROUP BY 3
+ORDER BY month_year
+---
