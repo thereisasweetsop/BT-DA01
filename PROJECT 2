@@ -63,3 +63,29 @@ INSIGHT:
 - 12 tuổi là độ tuổi trẻ nhất, có 1661 người 12 tuổi
 - 70 tuổi là độ tuổi già nhất, có 1624 người 70 tuổi
 ---
+WITH CTE AS 
+(
+SELECT 
+    CAST(EXTRACT(YEAR FROM o.created_at) AS STRING) || '-' || LPAD(CAST(EXTRACT(MONTH FROM o.created_at) AS STRING), 2, '0') AS month_year,
+    p.id AS product_id,
+    p.name AS product_name,
+    p.retail_price AS sales,
+    p.cost AS cost,
+    p.retail_price - p.cost AS profit,
+    DENSE_RANK() OVER (PARTITION BY CAST(EXTRACT(YEAR FROM o.created_at) AS STRING) || '-' || LPAD(CAST(EXTRACT(MONTH FROM o.created_at) AS STRING), 2, '0') ORDER BY p.retail_price - p.cost DESC) AS rank_per_month
+FROM bigquery-public-data.thelook_ecommerce.products AS p
+JOIN bigquery-public-data.thelook_ecommerce.order_items AS o
+ON p.id = o.product_id
+)
+
+SELECT 
+  month_year,
+  product_id,
+  product_name,
+  sales,
+  cost,
+  profit,
+  rank_per_month
+FROM CTE
+WHERE rank_per_month IN (1,2,3,4,5)
+---
