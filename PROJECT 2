@@ -89,3 +89,16 @@ SELECT
 FROM CTE
 WHERE rank_per_month IN (1,2,3,4,5)
 ---
+SELECT 
+  DATE(o.created_at) AS dates,
+  p.category AS product_categories,
+  SUM(p.retail_price) AS total_product 
+FROM bigquery-public-data.thelook_ecommerce.products AS p
+JOIN bigquery-public-data.thelook_ecommerce.order_items AS o
+ON p.id=o.id
+WHERE 
+    DATE(o.created_at) BETWEEN '2022-01-15' AND '2022-04-15'
+GROUP BY 
+    dates, product_categories                        
+ORDER BY 
+    dates, product_categories;
