@@ -29,3 +29,37 @@ INSIGHT:
 + Số lượng khách hàng có xu hướng tăng theo thời gian
 + Số lượng đơn hàng trung bình trong giai đoạn thời gian quan sát khá đồng đều, có biến động nhỏ, đặc biệt cao hơn vào tháng 3,4,5,6/2019
 ---
+CREATE TEMP TABLE temp_customer_age AS 
+(
+SELECT 
+  first_name,
+  last_name,
+  gender,
+  age,
+  'youngest' AS tag
+FROM bigquery-public-data.thelook_ecommerce.users
+WHERE age = (SELECT 
+  MIN(age)
+FROM bigquery-public-data.thelook_ecommerce.users)
+UNION ALL
+SELECT 
+  first_name,
+  last_name,
+  gender,
+  age,
+  'oldest' AS tag
+FROM bigquery-public-data.thelook_ecommerce.users
+WHERE age = (SELECT 
+  MAX(age)
+FROM bigquery-public-data.thelook_ecommerce.users)
+); 
+
+SELECT 
+  tag,
+  COUNT(*) AS total_count
+FROM temp_customer_age
+GROUP BY tag
+INSIGHT:
+- 12 tuổi là độ tuổi trẻ nhất, có 1661 người 12 tuổi
+- 70 tuổi là độ tuổi già nhất, có 1624 người 70 tuổi
+---
