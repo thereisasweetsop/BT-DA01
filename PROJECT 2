@@ -55,10 +55,11 @@ FROM bigquery-public-data.thelook_ecommerce.users)
 ); 
 
 SELECT 
+  gender,
   tag,
   COUNT(*) AS total_count
 FROM temp_customer_age
-GROUP BY tag
+GROUP BY tag, gender
 INSIGHT:
 - 12 tuổi là độ tuổi trẻ nhất, có 1661 người 12 tuổi
 - 70 tuổi là độ tuổi già nhất, có 1624 người 70 tuổi
