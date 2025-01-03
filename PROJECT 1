@@ -1,0 +1,104 @@
+CREATE TABLE SALES_DATASET_RFM_PRJ (
+  ordernumber VARCHAR,
+  quantityordered VARCHAR,
+  priceeach VARCHAR,
+  orderlinenumber VARCHAR,
+  sales VARCHAR,
+  orderdate VARCHAR,
+  status VARCHAR,
+  productline VARCHAR,
+  msrp VARCHAR,
+  productcode VARCHAR,
+  customername VARCHAR,
+  phone VARCHAR,
+  addressline1 VARCHAR,
+  addressline2 VARCHAR,
+  city VARCHAR,
+  state VARCHAR,
+  postalcode VARCHAR,
+  country VARCHAR,
+  territory VARCHAR,
+  contactfullname VARCHAR,
+  dealsize VARCHAR
+);
+
+select * from sales_dataset_rfm_prj
+
+ALTER TABLE sales_dataset_rfm_prj 
+ALTER COLUMN priceeach TYPE numeric USING priceeach::numeric,
+ALTER COLUMN sales TYPE numeric USING sales::numeric;
+
+ALTER TABLE sales_dataset_rfm_prj
+ALTER COLUMN ordernumber TYPE integer USING ordernumber::integer,
+ALTER COLUMN quantityordered TYPE integer USING quantityordered::integer,
+ALTER COLUMN orderlinenumber TYPE integer USING orderlinenumber::integer,
+ALTER COLUMN msrp TYPE integer USING msrp::integer;
+
+SELECT * FROM sales_dataset_rfm_prj
+WHERE ordernumber = ' '
+OR quantityordered = ' '
+OR priceeach = ' '
+OR ORDERLINENUMBER = ' '
+OR SALES = ' '
+OR ORDERDATE = ' '
+
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN CONTACTFIRSTNAME VARCHAR;
+
+UPDATE sales_dataset_rfm_prj
+SET CONTACTFIRSTNAME = INITCAP(
+    LEFT(contactfullname, POSITION('-' IN contactfullname) - 1)
+);
+
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN CONTACTLASTNAME VARCHAR;
+
+UPDATE sales_dataset_rfm_prj
+SET CONTACTLASTNAME = INITCAP(
+    RIGHT(contactfullname, LENGTH(contactfullname) - POSITION('-' IN contactfullname))
+);
+
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN QTR_ID INTEGER;
+
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN MONTH_ID INTEGER;
+
+ALTER TABLE sales_dataset_rfm_prj
+ADD COLUMN YEAR_ID INTEGER;
+
+UPDATE sales_dataset_rfm_prj
+SET QTR_ID = EXTRACT(QUARTER FROM TO_DATE(orderdate, 'MM/DD/YYYY'));
+
+UPDATE sales_dataset_rfm_prj
+SET MONTH_ID = EXTRACT(MONTH FROM TO_DATE(orderdate, 'MM/DD/YYYY'));
+
+UPDATE sales_dataset_rfm_prj
+SET YEAR_ID = EXTRACT(YEAR FROM TO_DATE(orderdate, 'MM/DD/YYYY'));
+
+WITH twt_min_max_value AS 
+(
+SELECT 
+	Q1-1.5*IQR AS min_value,
+	Q3+1.5*IQR AS max_value
+FROM
+(SELECT 
+	percentile_cont(0.25) WITHIN GROUP (ORDER BY quantityordered) AS Q1,
+	percentile_cont(0.75) WITHIN GROUP (ORDER BY quantityordered) AS Q3,
+	percentile_cont(0.75) WITHIN GROUP (ORDER BY quantityordered) - 
+	percentile_cont(0.25) WITHIN GROUP (ORDER BY quantityordered) AS IQR
+FROM sales_dataset_rfm_prj) AS a
+)
+, twt_ourlier AS (
+SELECT * FROM sales_dataset_rfm_prj
+WHERE quantityordered < (SELECT min_value FROM twt_min_max_value)
+	OR quantityordered > (SELECT max_value FROM twt_min_max_value)
+)
+
+DELETE FROM sales_dataset_rfm_prj
+WHERE quantityordered IN (SELECT quantityordered FROM twt_ourlier)
+
+UPDATE sales_dataset_rfm_prj
+SET quantityordered = (SELECT AVG(quantityordered)
+FROM sales_dataset_rfm_prj)
+WHERE quantityordered IN (SELECT quantityordered FROM twt_ourlier)
