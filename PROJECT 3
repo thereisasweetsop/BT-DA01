@@ -44,3 +44,40 @@ FROM SALES_DATASET_RFM_PRJ_CLEAN
 WHERE COUNTRY = 'UK'
 GROUP BY YEAR_ID, 
 	PRODUCTLINE
+
+WITH customer_rfm AS (
+SELECT 
+	customername,
+	CURRENT_DATE - MAX(orderdate) AS R,
+	COUNT (DISTINCT ordernumber) AS F,
+	SUM(sales) AS M
+FROM SALES_DATASET_RFM_PRJ_CLEAN 
+GROUP BY customername)
+
+, rfm_score AS (
+SELECT 
+	customername,
+	ntile(5) OVER (ORDER BY R DESC) AS r_score,
+	ntile(5) OVER (ORDER BY F) AS f_score,
+	ntile(5) OVER (ORDER BY M) AS m_score
+FROM customer_rfm
+)
+,final_rfm AS (
+SELECT 
+	customername,
+	CAST(r_score AS varchar) || CAST(f_score AS varchar) || CAST(m_score AS varchar) AS rfm_score 
+FROM rfm_score)
+
+
+SELECT
+	a.customername,
+	a.rfm_score,
+	b.segment
+FROM final_rfm AS a
+JOIN segment_score AS b
+ON a.rfm_score=b.scores
+-> phân khúc Champions là khách hàng tốt nhất 
+
+-- SET datestyle = 'iso,mdy';  
+-- ALTER TABLE SALES_DATASET_RFM_PRJ_CLEAN
+-- ALTER COLUMN orderdate TYPE date USING (TRIM(orderdate):: date)
